@@ -45,6 +45,16 @@ Open your web browser and go to: `http://localhost:5000`
 3. **View Results**: See if the news is classified as REAL or FAKE with confidence score
 4. **Try Examples**: Use the example buttons to test with pre-loaded samples
 
+## Dataset Information
+
+The application uses a dataset of news articles to train the machine learning model. The dataset is available in the following Google Drive folder:
+
+**Dataset Source**: [Google Drive - Fake News Dataset](https://drive.google.com/drive/folders/1ByadNwMrPyds53cA6SDCHLelTAvIdoF_)
+
+The dataset contains two CSV files:
+- **Fake.csv** (59.9 MB) - Contains fake news articles
+- **True.csv** (51.1 MB) - Contains real news articles
+
 ## Model Information
 
 - **Algorithm**: Logistic Regression
