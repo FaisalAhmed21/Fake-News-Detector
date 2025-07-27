@@ -8,7 +8,6 @@ A web-based application that uses machine learning to detect fake news articles.
 - 📊 **Confidence Scoring**: See how confident the model is in its prediction
 - 🎨 **Modern UI**: Beautiful, responsive design that works on all devices
 - 💡 **Example Texts**: Try pre-loaded examples to test the system
-- 📱 **Mobile Friendly**: Optimized for desktop and mobile devices
 
 ## How It Works
 
