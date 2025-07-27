@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake News Detector</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e8f4f8 0%, #f0f8ff 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #4a90e2, #7bb3e8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-group textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 15px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .input-group textarea:focus {
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .input-group textarea::placeholder {
+            color: #999;
+        }
+
+        .analyze-btn {
+            background: linear-gradient(135deg, #4a90e2, #7bb3e8);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(74, 144, 226, 0.4);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-section {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border-left: 5px solid #4a90e2;
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .result-fake {
+            color: #dc3545;
+        }
+
+        .result-real {
+            color: #28a745;
+        }
+
+        .confidence-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 20px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.8s ease;
+        }
+
+        .confidence-fill.fake {
+            background: linear-gradient(90deg, #dc3545, #c82333);
+        }
+
+        .confidence-fill.real {
+            background: linear-gradient(90deg, #28a745, #20c997);
+        }
+
+        .confidence-text {
+            font-size: 1.1rem;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4a90e2;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #dc3545;
+        }
+
+        .example-texts {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .example-texts h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .example-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .example-btn:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .analyze-btn {
+                padding: 12px 30px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Fake News Detector</h1>
+            <p>Paste any news article below and get instant analysis</p>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <textarea 
+                    id="newsText" 
+                    placeholder="Paste your news article here... (e.g., WASHINGTON (Reuters) - The United States and Russia have agreed to extend the New START nuclear arms control treaty for five years, the White House said on Wednesday.)"
+                    required
+                ></textarea>
+            </div>
+            <button class="analyze-btn" id="analyzeBtn" onclick="analyzeNews()">
+                🔍 Analyze News
+            </button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyzing your news article...</p>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div class="result-card" id="resultCard">
+                <div class="result-title" id="resultTitle"></div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" id="confidenceFill"></div>
+                </div>
+                <div class="confidence-text" id="confidenceText"></div>
+            </div>
+        </div>
+
+        <div class="example-texts">
+            <h3>💡 Try these examples:</h3>
+            <button class="example-btn" onclick="loadExample('real')">Real News Example</button>
+            <button class="example-btn" onclick="loadExample('fake')">Fake News Example</button>
+            <button class="example-btn" onclick="clearText()">Clear Text</button>
+        </div>
+    </div>
+
+    <script>
+        const examples = {
+            real: "WASHINGTON (Reuters) - The United States and Russia have agreed to extend the New START nuclear arms control treaty for five years, the White House said on Wednesday. The treaty, which limits the number of strategic nuclear weapons each country can deploy, was set to expire on February 5.",
+            fake: "BREAKING: Scientists discover that drinking coffee makes you immortal and gives you superpowers! This revolutionary finding will change everything we know about health. The study, conducted by a team of researchers who definitely exist, found that coffee drinkers live 500 years longer and can fly."
+        };
+
+        function loadExample(type) {
+            const textarea = document.getElementById('newsText');
+            textarea.value = examples[type];
+        }
+
+        function clearText() {
+            document.getElementById('newsText').value = '';
+            hideResult();
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('resultSection').style.display = 'none';
+            document.getElementById('analyzeBtn').disabled = true;
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('analyzeBtn').disabled = false;
+        }
+
+        function showResult(result, confidence, isReal) {
+            const resultSection = document.getElementById('resultSection');
+            const resultTitle = document.getElementById('resultTitle');
+            const confidenceFill = document.getElementById('confidenceFill');
+            const confidenceText = document.getElementById('confidenceText');
+
+            resultTitle.textContent = result;
+            resultTitle.className = `result-title ${isReal ? 'result-real' : 'result-fake'}`;
+            
+            confidenceFill.style.width = `${confidence}%`;
+            confidenceFill.className = `confidence-fill ${isReal ? 'real' : 'fake'}`;
+            
+            confidenceText.textContent = `Confidence: ${confidence}%`;
+
+            resultSection.style.display = 'block';
+        }
+
+        function hideResult() {
+            document.getElementById('resultSection').style.display = 'none';
+        }
+
+        function showError(message) {
+            const resultSection = document.getElementById('resultSection');
+            resultSection.innerHTML = `<div class="error">${message}</div>`;
+            resultSection.style.display = 'block';
+        }
+
+        async function analyzeNews() {
+            const text = document.getElementById('newsText').value.trim();
+            
+            if (!text) {
+                alert('Please enter some text to analyze.');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const isReal = data.result === 'REAL';
+                    showResult(data.result, data.confidence, isReal);
+                } else {
+                    showError(data.error || 'An error occurred while analyzing the text.');
+                }
+            } catch (error) {
+                showError('Network error. Please check your connection and try again.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Allow Enter key to trigger analysis
+        document.getElementById('newsText').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                analyzeNews();
+            }
+        });
+
+        // Auto-resize textarea
+        document.getElementById('newsText').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 300) + 'px';
+        });
+    </script>
+</body>
+</html> 
